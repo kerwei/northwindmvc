@@ -33,6 +33,22 @@ namespace NorthwindMvc.Controllers
             return View(model);
         }
 
+        public IActionResult ProductDetail(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return NotFound("You must pass a product ID in the route, for example, /Home/ProductDetail/21");
+            }
+
+            var model = db.Products.SingleOrDefault(p => p.ProductID == id);
+            if (model == null)
+            {
+                return NotFound($"Product with ID of {id} not found.");
+            }
+
+            return View(model);
+        }
+
         public IActionResult Privacy()
         {
             return View();
@@ -42,6 +58,25 @@ namespace NorthwindMvc.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult ModelBinding()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult ModelBinding(Thing thing)
+        {
+            // return View(thing);
+            var model = new HomeModelBindingViewModel
+            {
+                Thing = thing,
+                HasErrors = !ModelState.IsValid,
+                ValidationErrors = ModelState.Values.SelectMany(state => state.Errors).Select(error => error.ErrorMessage)
+            };
+
+            return View(model);
         }
     }
 }
